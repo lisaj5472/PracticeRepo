@@ -28,26 +28,25 @@
 
 version: 2.1
 
-executors:
-  cypress-executor:
-    docker:
-      - image: cypress/browsers:node18.12.0-chrome107-ff107
-    working_directory: ~/repo
+orbs:
+  cypress: cypress-io/cypress@3.3.1
 
 jobs:
-  run-cypress-component-tests:
-    executor: cypress-executor
+  start-server:
+    docker:
+      - image: cypress/base: latest
     steps:
       - checkout
       - run:
-          name: Install Dependencies
-          command: npm ci
+          name: Install dependencies
+          command: npm install
       - run:
-          name: Run Cypress Component Tests
-          command: npm run cy:component
-
+          name: Start the application
+          command: npm start &
 workflows:
-  version: 2
-  test-workflow:
+  run-tests:
     jobs:
-      - run-cypress-component-tests
+      - start-server:
+      - cypress/run:
+          name: Run Cypress tests
+          cypress-command: npx cypress run --component
