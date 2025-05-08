@@ -12,16 +12,42 @@
 #     jobs:
 #       - hello-world-job
 
+# version: 2.1
+
+# jobs:
+#   hello-world-job:
+#     docker:
+#       - image: cimg/base:current
+#     steps:
+#       - run: echo "Hello, World!"
+
+# workflows:
+#   hello-world-workflow:
+#     jobs:
+#       - hello-world-job
+
 version: 2.1
 
-jobs:
-  hello-world-job:
+executors:
+  cypress-executor:
     docker:
-      - image: cimg/base:current
+      - image: cypress/browsers:node18.12.0-chrome107-ff107
+    working_directory: ~/repo
+
+jobs:
+  run-cypress-component-tests:
+    executor: cypress-executor
     steps:
-      - run: echo "Hello, World!"
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - run:
+          name: Run Cypress Component Tests
+          command: npm run cy:component
 
 workflows:
-  hello-world-workflow:
+  version: 2
+  test-workflow:
     jobs:
-      - hello-world-job
+      - run-cypress-component-tests
